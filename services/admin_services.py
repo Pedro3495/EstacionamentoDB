@@ -1,22 +1,11 @@
-from services.user_services import insert_client,insert_ticketmensal
+from services.user_services import insert_client,insert_ticketmensal,ver_ticket_mensal,limpar_terminal
 from datetime import datetime, timedelta
 
-users = {
-    "admin": "admin"
-}
 
-def adminLogin():
-    user = input("Digite seu usuário: ")
-    password = input("Digite sua senha: ")
 
-    if user in users and users[user] == password:
-        print("Login realizado com sucesso!\n")
-        admin_menu(user)
-    else:
-        print("Usuário e/ou senha incorreta.\n")
-
-def admin_menu(user): 
+def admin_menu(): 
     while True:
+        limpar_terminal()
         print("--- MENU ADMINISTRATIVO ---")
         print("1 - Ver todos os tickets temporários ativos")
         print("2 - Ver todos os tickets mensais ativos")
@@ -27,13 +16,21 @@ def admin_menu(user):
 
         if option == "1":
             print("Mostrando tickets temporários...\n")
-            #criar conexão para mostrar tickets temp
-
+          
         elif option == "2":
+            limpar_terminal()
             print("Mostrando tickets mensais...\n")
             #criar conexão para mostrar tickets mensais
-
+            tickets = ver_ticket_mensal()
+            if tickets:
+                for ticket in tickets:
+                    print(ticket)
+                input("\nDigite ENTER para continuar...")  # Pausa até o usuário pressionar ENTER
+            else:
+                print("Nenhum ticket encontrado.")
+                input("\nDigite ENTER para continuar...")
         elif option == "3":
+            limpar_terminal()
             create_date = datetime.now()
             due_date = create_date + timedelta(days=30)
 
@@ -42,12 +39,14 @@ def admin_menu(user):
             insert_ticketmensal(parking_space)
 
             print(f"Novo ticket mensal criado para {name} (CPF: {cpf}) -> O ID DO TICKET É: | A Vaga fixa do cliente é: {parking_space}\n")
-        
+            input("\nDigite ENTER para continuar...") 
         elif option == "4":
+            limpar_terminal()
             name = input("Digite o nome do cliente: ")
             cpf = input("Digite o número do CPF do cliente: ")
             id_cliente = insert_client(name, cpf)
             print(f"Novo cliente Registrado! Nome: {name}, CPF: {cpf}, ID: {id_cliente}")
+            input("\nDigite ENTER para continuar...") 
 
 
         elif option == "0":
