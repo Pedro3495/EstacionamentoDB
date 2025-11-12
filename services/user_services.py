@@ -25,24 +25,25 @@ def insert_client(client_name: str, cpf: str):
             connection.close()
 
 
-def insert_ticketmensal(parking_space: int, id_client: int, due_date: str):
+def insert_ticketmensal(parking_space: str, id_client: int, due_date: str):
+    connection = None
+    cursor = None
     try:
         connection = criar_conexao()
         cursor = connection.cursor()
-
-        sql = "INSERT INTO TICKET_MONTH (ID_CLIENT, PARKING_SPACE, DUE_DATE) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO TICKET_MONTH (ID_CLIENT, PARKING_SPACE, DUE_DATE) VALUES (%s, %s, %s) RETURNING ID_TICKET_MONTH"
         cursor.execute(sql, (id_client, parking_space, due_date))
+        id_ticket = cursor.fetchone()[0]  # Agora funciona!
         connection.commit()
-        
         print("Ticket mensal cadastrado com sucesso!")
-        
-
+        return id_ticket
     except Exception as e:
-        print(e)
+        print(f"Erro ao inserir ticket: {e}")
+        return None
     finally:
-        if cursor is not None:
+        if cursor:
             cursor.close()
-        if connection is not None:
+        if connection:
             connection.close()
 
 def login(user:str ,senha: str):
@@ -75,7 +76,7 @@ def ver_ticket_mensal():
     try:
         connection = criar_conexao()
         cursor = connection.cursor()
-        sql = "SELECT * FROM CLIENT"
+        sql = "SELECT * FROM TICKET_MONTH"
         cursor.execute(sql)  # Sem parâmetros desnecessários
         tickets = cursor.fetchall()  # Pega todos os registros
         return tickets
@@ -95,3 +96,42 @@ def limpar_terminal():
     # Linux e Mac
     else:
         os.system('clear')
+
+def buscar_nome_cpf_do_cliente(id_cliente: int):
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "SELECT CLIENT_NAME, CPF FROM CLIENT WHERE ID_CLIENT =%s"
+        cursor.execute(sql,(id_cliente,))  # Sem parâmetros desnecessários
+        result = cursor.fetchone()
+        if result:
+            name, cpf = result
+            return name, cpf
+    except Exception as e:
+        print(f"Erro ao buscar dados do cliente: {e}")
+        return None, None
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+
+def vaga_disponivel(parking_space: str):
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "SELECT COUNT(*) FROM TICKET_MONTH WHERE PARKING_SPACE =%s"
+        cursor.execute(sql, (parking_space,))
+        result = cursor.fetchone()
+        return result[0] == 0
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
