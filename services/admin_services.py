@@ -1,4 +1,4 @@
-from services.user_services import insert_client,insert_ticketmensal,ver_ticket_mensal,limpar_terminal,buscar_nome_cpf_do_cliente,vaga_disponivel
+from services.user_services import insert_client,insert_ticketmensal,ver_ticket_mensal,limpar_terminal,buscar_nome_cpf_do_cliente,vaga_disponivel,ver_clientes,atualizar_nome_cliente,excluir_cliente
 from datetime import datetime, timedelta
 
 
@@ -11,6 +11,9 @@ def admin_menu():
         print("2 - Ver todos os tickets mensais ativos")
         print("3 - Inserir novo ticket mensal")
         print("4 - Adicionar Cliente")
+        print("5 - Ver todos os Clientes")
+        print("6 - Corrigir Nome Cliente")
+        print("7 - Excluir Cliente")
         print("0 - Sair")
         option = input("Escolha: ")
 
@@ -63,6 +66,35 @@ def admin_menu():
             id_cliente = insert_client(name, cpf)
             print(f"Novo cliente Registrado! Nome: {name}, CPF: {cpf}, ID: {id_cliente}")
             input("\nDigite ENTER para continuar...") 
+        
+        elif option == "5":
+            limpar_terminal()
+            print("Mostrando clientes ...\n")
+            
+            clientes = ver_clientes()
+            if clientes:
+                for cliente in clientes:
+                    nome = cliente[0]
+                    vaga = cliente[1]
+                    if vaga is None:
+                        vaga = "Sem vaga"
+                    print(f"Cliente:{nome} | Vaga: {vaga}")
+                input("\nDigite ENTER para continuar...")  
+            else:
+                print("Nenhum cliente encontrado.")
+                input("\nDigite ENTER para continuar...")
+        elif option == "6":
+            id_cliente = int(input("Digite o ID do cliente que deseja corrigir: "))
+            novo_nome = input("Digite o novo nome do cliente: ")
+
+            atualizar_nome_cliente(id_cliente, novo_nome)
+            input("Digite ENTER para continuar...")
+
+        elif option == "7":
+            id_cliente = int(input("Digite o ID do cliente que deseja excluir: "))
+
+            excluir_cliente(id_cliente)
+            input("Digite ENTER para continuar...")
 
 
         elif option == "0":

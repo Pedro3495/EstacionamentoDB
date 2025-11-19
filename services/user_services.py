@@ -76,7 +76,7 @@ def ver_ticket_mensal():
     try:
         connection = criar_conexao()
         cursor = connection.cursor()
-        sql = "SELECT * FROM TICKET_MONTH"
+        sql = "select c.CLIENT_NAME as NOME_CLIENTE, c.CPF, tm.PARKING_SPACE as VAGA, tm.DUE_DATE as Vencimento from CLIENT c inner join TICKET_MONTH tm on C.ID_CLIENT = tm.ID_CLIENT;"
         cursor.execute(sql)  # Sem parâmetros desnecessários
         tickets = cursor.fetchall()  # Pega todos os registros
         return tickets
@@ -135,3 +135,82 @@ def vaga_disponivel(parking_space: str):
             cursor.close()
         if connection:
             connection.close()
+
+def ver_clientes():
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "select c.CLIENT_NAME as NOME_CLIENTE, tm.PARKING_SPACE as VAGA from CLIENT c left join TICKET_MONTH tm on C.ID_CLIENT = tm.ID_CLIENT;"
+        cursor.execute(sql)  # Sem parâmetros desnecessários
+        clientes = cursor.fetchall()  # Pega todos os registros
+        return clientes
+    except Exception as e:
+        print(f"Erro ao buscar tickets: {e}")
+        return None
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+def atualizar_nome_cliente(id_cliente: int, novo_nome: str):
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "UPDATE CLIENT SET CLIENT_NAME = %s WHERE ID_CLIENT = %s"
+        cursor.execute(sql, (novo_nome, id_cliente))
+        connection.commit()
+        print("Nome do cliente atualizado com sucesso!")
+    except Exception as e:
+        print(f"Erro ao atualizar nome do cliente: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+def excluir_cliente(id_cliente: int):
+    deletar_tickets_cliente(id_cliente)
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "DELETE FROM CLIENT WHERE ID_CLIENT = %s"
+        cursor.execute(sql, (id_cliente,))
+        connection.commit()
+        print("Cliente deletado com sucesso!")
+    except Exception as e:
+        print(f"Erro ao excluir cliente: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+def deletar_tickets_cliente(id_cliente: int):
+    connection = None
+    cursor = None
+    try:
+        connection = criar_conexao()
+        cursor = connection.cursor()
+        sql = "DELETE FROM TICKET_MONTH WHERE ID_CLIENT = %s"
+        cursor.execute(sql, (id_cliente,))
+        connection.commit()
+    except Exception as e:
+        print(f"Erro ao deletar tickets: {e}")
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+
+#fazer update cliente mudar nome
+#fazer delete 
+#atualizar documentação
+#criptografar a senha do admin
