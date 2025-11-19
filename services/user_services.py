@@ -1,6 +1,6 @@
 from config.db import criar_conexao
+from config.crypt import checar_password,criotpgrafar
 import os
-
 
 def insert_client(client_name: str, cpf: str):
     connection = None
@@ -50,10 +50,12 @@ def login(user:str ,senha: str):
     try:
         con = criar_conexao()
         cursor = con.cursor()
-        sql = "SELECT * FROM USUARIOS where EMAIL=%s and password=%s"
-        cursor.execute(sql,(user,senha))
+        sql = "SELECT * FROM USUARIOS where EMAIL=%s "
+        cursor.execute(sql,(user,))
         user = cursor.fetchone()
-        return user
+        if user and checar_password(senha,user[2]):
+            return user
+        return None
     except Exception as e:
         print(e)
 
@@ -61,6 +63,7 @@ def insert_user(email: str, password: str):
     try:
         connection = criar_conexao()
         cursor = connection.cursor()
+        password = criotpgrafar(password)
         sql = "INSERT INTO usuarios(email, password) VALUES (%s, %s)"
         cursor.execute(sql, (email, password))
         connection.commit()
@@ -208,6 +211,7 @@ def deletar_tickets_cliente(id_cliente: int):
             cursor.close()
         if connection:
             connection.close()
+
 
 
 #fazer update cliente mudar nome
